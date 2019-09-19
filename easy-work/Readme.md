@@ -32,7 +32,7 @@ create database works_app
 **4. Build and run the app using Gradle**
 
 ```bash
-gradle bootWar
+gradlew bootWar
 ```
 
 Alternatively, you can run the app without packaging it using -

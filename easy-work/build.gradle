@@ -25,4 +25,7 @@ dependencies {
 	runtimeOnly 'mysql:mysql-connector-java'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	 testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine'
+    testCompile group: 'org.junit.platform', name: 'junit-platform-launcher'
+
 }

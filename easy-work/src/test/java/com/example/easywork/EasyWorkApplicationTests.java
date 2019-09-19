@@ -19,11 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.example.easywork.common.Constants.*;
+import com.example.easywork.common.Constants.Msg;
 import com.example.easywork.common.enums.Status;
+import com.example.easywork.model.Work;
 import com.example.easywork.model.response.ResponseError;
 import com.example.easywork.model.response.ResponseListWork;
-import com.example.easywork.model.Work;
 import com.google.gson.Gson;
 
 @RunWith(SpringRunner.class)
@@ -49,9 +49,28 @@ public class EasyWorkApplicationTests {
     public void contextLoads() {
 
     }
+    /**
+     * Test Invalid API URL Get all work
+     * When API URL Get all work invalid. 
+     * Result is include : 
+     *                      httpstatus : 404 
+     */
+    @Test
+    public void testInvalidAPIGetAllWork() {
+        // Case invalid api URL get all work
+    	 HttpHeaders headers = new HttpHeaders();
+         HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+         ResponseEntity<String> response = restTemplate.exchange(getRootUrl() + "/worksGetAll", HttpMethod.GET, entity,
+                 String.class);
+        assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
+    }
 
     /**
-     * Test get all work
+     * Test API URL Get all work
+     * When input correct URL API Get all work
+     * Result is include : 
+     *                      httpstatus : 200 
+     *                      body : has content
      */
     @Test
     public void testGetAllworks() {
@@ -59,21 +78,45 @@ public class EasyWorkApplicationTests {
         HttpEntity<String> entity = new HttpEntity<String>(null, headers);
         ResponseEntity<String> response = restTemplate.exchange(getRootUrl() + "/works", HttpMethod.GET, entity,
                 String.class);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertNotNull(response.getBody());
     }
-
+    
     /**
-     * Test get work by id
+     * Test Invalid API URL create work
+     * When API URL create work invalid. 
+     * Result is include : 
+     *                      httpstatus : 404 
      */
     @Test
-    public void testGetworkById() {
-        Work work = restTemplate.getForObject(getRootUrl() + "/works/1", Work.class);
-        System.out.println(work.getWorkName());
-        assertNotNull(work);
+    public void testInvalidAPICreateWork() {
+        // Case invalid API URL create work
+    	 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+         Work work = new Work();
+         work.setWorkName("Java");
+         try {
+             work.setStartingDate(sdf.parse("18/08/2018"));
+         } catch (ParseException e) {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+         }
+         try {
+             work.setEndingDate(sdf.parse("20/08/2018"));
+         } catch (ParseException e) {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+         }
+         work.setStatus(Status.PLAINING);
+         ResponseEntity<Work> postResponse = restTemplate.postForEntity(getRootUrl() + "/worksCreate", work, Work.class);
+        assertEquals(postResponse.getStatusCode(), HttpStatus.NOT_FOUND);
     }
-
+    
     /**
-     * Test create work
+     * Test API URL create work
+     * When input correct API URL create work
+     * Result is include : 
+     *                      httpstatus : 200 
+     *                      body : has content
      */
     @Test
     public void testCreatework() {
@@ -94,8 +137,61 @@ public class EasyWorkApplicationTests {
         }
         work.setStatus(Status.PLAINING);
         ResponseEntity<Work> postResponse = restTemplate.postForEntity(getRootUrl() + "/works", work, Work.class);
-        assertNotNull(postResponse);
+        assertEquals(postResponse.getStatusCode(), HttpStatus.OK);
         assertNotNull(postResponse.getBody());
+    }
+
+    /**
+     * Test Invalid API URL Get work by id
+     * When API URL Get work by id invalid. 
+     * Result is include : 
+     *                      httpstatus : 404 
+     */
+    @Test
+    public void testInvalidAPIGetworkById() {
+        // Case invalid API URL Get work by id
+    	 HttpHeaders headers = new HttpHeaders();
+         HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+         ResponseEntity<String> response = restTemplate.exchange(getRootUrl() + "/worksId/1", HttpMethod.GET, entity,
+                 String.class);
+        assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Test get work by id
+     */
+    @Test
+    public void testGetworkById() {
+        Work work = restTemplate.getForObject(getRootUrl() + "/works/1", Work.class);
+        System.out.println(work.getWorkName());
+        assertNotNull(work);
+    }
+
+    /**
+     * Test Invalid API URL Update work
+     * When API URL Update work invalid. 
+     * Result is include : 
+     *                      httpstatus : 404 
+     */
+    @Test
+    public void testInvalidAPIUpdatework() {
+        // Case invalid API URL Get work by id
+    	int id = 1;
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        Work workUpdate = restTemplate.getForObject(getRootUrl() + "/works/" + id, Work.class);
+        workUpdate.setWorkName("Python");
+        try {
+            workUpdate.setStartingDate(sdf.parse("20/08/2018"));
+        } catch (ParseException e) {
+        }
+        try {
+            workUpdate.setEndingDate(sdf.parse("18/08/2018"));
+        } catch (ParseException e) {
+        }
+         workUpdate.setStatus(Status.COMPLETE);
+        restTemplate.put(getRootUrl() + "/worksUpdate/" + id, workUpdate);
+        ResponseEntity<Work> postResponse = restTemplate.postForEntity(getRootUrl() + "/worksUpdate"+ id, workUpdate, Work.class);
+        assertEquals(postResponse.getStatusCode(), HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -108,18 +204,18 @@ public class EasyWorkApplicationTests {
     public void testUpdatework() {
         int id = 1;
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Work work = restTemplate.getForObject(getRootUrl() + "/works/" + id, Work.class);
-        work.setWorkName("PHP");
+        Work workUpdate = restTemplate.getForObject(getRootUrl() + "/works/" + id, Work.class);
+        workUpdate.setWorkName("Python");
         try {
-            work.setStartingDate(sdf.parse("20/08/2018"));
+            workUpdate.setStartingDate(sdf.parse("20/08/2018"));
         } catch (ParseException e) {
         }
         try {
-            work.setEndingDate(sdf.parse("18/08/2018"));
+            workUpdate.setEndingDate(sdf.parse("18/08/2018"));
         } catch (ParseException e) {
         }
-         work.setStatus(Status.COMPLETE);
-        restTemplate.put(getRootUrl() + "/works/" + id, work);
+         workUpdate.setStatus(Status.COMPLETE);
+        restTemplate.put(getRootUrl() + "/works/" + id, workUpdate);
         Work updatedwork = restTemplate.getForObject(getRootUrl() + "/works/" + id, Work.class);
         assertNotNull(updatedwork);
     }
@@ -132,12 +228,31 @@ public class EasyWorkApplicationTests {
      */
     @Test
     public void testDeletework() {
-        int id = 1;
-        Work work = restTemplate.getForObject(getRootUrl() + "/works/" + id, Work.class);
-        assertNotNull(work);
-        restTemplate.delete(getRootUrl() + "/works/" + id);
-        work = restTemplate.getForObject(getRootUrl() + "/works/" + id, Work.class);
-        assertEquals(work.getId(), null);
+    	// Create new work with id is 2 and then delete work with id is 1
+    	 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+         Work work_php = new Work();
+         work_php.setWorkName("PHP");
+         try {
+        	 work_php.setStartingDate(sdf.parse("10/08/2018"));
+         } catch (ParseException e) {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+         }
+         try {
+        	 work_php.setEndingDate(sdf.parse("11/08/2018"));
+         } catch (ParseException e) {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+         }
+         work_php.setStatus(Status.DOING);
+         ResponseEntity<Work> postResponse = restTemplate.postForEntity(getRootUrl() + "/works", work_php, Work.class);
+         assertEquals(postResponse.getStatusCode(), HttpStatus.OK);
+        int idDelete = 1;
+        Work workDelete = restTemplate.getForObject(getRootUrl() + "/works/" + idDelete, Work.class);
+        assertNotNull(workDelete);
+        restTemplate.delete(getRootUrl() + "/works/" + idDelete);
+        workDelete = restTemplate.getForObject(getRootUrl() + "/works/" + idDelete, Work.class);
+        assertEquals(workDelete.getId(), null);
     }
 
     /**
